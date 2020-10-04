@@ -89,7 +89,21 @@ job "traefik" {
         volumes = [
           "local/traefik.toml:/etc/traefik/traefik.toml",
           "local/dynamic/traefik.toml:/etc/traefik/dynamic/traefik.toml",
-          "name=traefik_certs,size=1G,repl=2:/etc/traefik/acme",
+        ]
+        mounts = [
+          {
+            target = "/etc/traefik/acme"
+            source = "traefik_certs"
+            volume_options {
+              driver_config {
+                name = "pxd"
+                options = {
+                  size = "1G"
+                  repl = "1"
+                }
+              }
+            }
+          }
         ]
       }
 
@@ -118,6 +132,7 @@ EOF
 
       template {
         destination = "local/dynamic/traefik.toml"
+        change_mode = "noop"
         left_delimiter = "{#"
         right_delimiter = "#}"
         data = <<EOF
