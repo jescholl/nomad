@@ -18,7 +18,6 @@ job "demo-webapp" {
 
       resources {
         network {
-          mbits = 10
           port  "http"{}
         }
       }

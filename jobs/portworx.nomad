@@ -87,7 +87,6 @@ job "portworx" {
         memory = 2048
 
         network {
-          mbits = 100
           port "portworx" {
             static = "9015"
           }
