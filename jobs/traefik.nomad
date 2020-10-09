@@ -89,6 +89,7 @@ job "traefik" {
         volumes = [
           "local/traefik.toml:/etc/traefik/traefik.toml",
           "local/dynamic/traefik.toml:/etc/traefik/dynamic/traefik.toml",
+          "/usr/local/share/ca-certificates/vault_CAs.crt:/vault_ca.crt"
         ]
         mounts = [
           {
@@ -220,6 +221,9 @@ EOF
     [certificatesResolvers.nosuchserver.acme.dnsChallenge]
         provider = "namecheap"
         resolvers = ["8.8.8.8:53", "1.1.1.1:53", "9.9.9.9:53"]
+
+[serversTransport]
+  rootCAs = ["/vault_ca.crt"]
 
 [api]
     dashboard = true
