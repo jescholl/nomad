@@ -8,6 +8,12 @@ job "unifi" {
     vault {
       policies = ["traefik"]
     }
+
+    constraint {
+      attribute = "${meta.px-node}"
+      value = "true"
+    }
+
     task "unifi" {
       driver = "docker"
       config {
@@ -20,7 +26,9 @@ job "unifi" {
           stun = 3478
         }
         volumes = [
-          "local/certs:/unifi/cert"
+          "local/certs:/unifi/cert",
+          "local/default/config.gateway.json:/unifi/data/sites/default/config.gateway.json",
+          "local/default/config.properties:/unifi/data/sites/default/config.properties"
         ]
         mounts = [
           {
@@ -30,7 +38,7 @@ job "unifi" {
               driver_config {
                 name = "pxd"
                 options = {
-                  size = "1G"
+                  size = "4G"
                   repl = "2"
                 }
               }
@@ -49,6 +57,23 @@ job "unifi" {
         }
       }
       service {
+        name = "unifi-cmdctrl"
+        port = "cmdctrl"
+        tags = [
+          "traefik.enable=true",
+          "traefik.tcp.routers.unifi-cmdctrl.entryPoints=unifi_cmdctrl",
+          "traefik.tcp.routers.unifi-cmdctrl.rule=HostSNI(`*`)",
+        ]
+      }
+      service {
+        name = "unifi-stun"
+        port = "stun"
+        tags = [
+          "traefik.enable=true",
+          "traefik.udp.routers.unifi-stun.entryPoints=unifi_stun",
+        ]
+      }
+      service {
         name = "unifi"
         port = "https"
 
@@ -61,6 +86,7 @@ job "unifi" {
         check {
           type     = "http"
           port     = "https"
+          protocol = "https"
           path     = "/status"
           interval = "30s"
           timeout  = "2s"
@@ -119,6 +145,18 @@ EOF
     }
   }
 }
+EOF
+      }
+
+      template {
+        destination = "local/default/config.properties"
+        change_mode = "noop"
+        data = <<EOF
+config.igd.enabled=true
+config.system_cfg.1=sshd.auth.key.1.status=enabled
+config.system_cfg.2=sshd.auth.key.1.value=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDokTfV3WD295LCy6Omhj/29+flG8MQgHvip8YfgiXGXTJxcuK3lsTHS6q8M/adFMkI7gnlXOm9EwFSeMwQ8VVeNVeKiAy4Lcoobm1WBu3bqSxUjREiWgmLlEENNj753gAASd4dXbVObgAMGAbq59BRSCNHX2EndHBift8pk1coXQ== jscholl@Jasons-MacBook-Pro-2.local
+
+config.system_cfg.3=sshd.auth.key.1.type=ssh-rsa
 EOF
       }
     }

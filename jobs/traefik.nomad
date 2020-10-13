@@ -117,6 +117,9 @@ job "traefik" {
           port "internal" { static = 443 }
           port "http_external" { static = 9080 }
           port "external" { static = 9443 }
+
+          port "unifi_stun" { static = 3478 }
+          port "unifi_cmdctrl" { static = 8080 }
         }
       }
 
@@ -213,6 +216,14 @@ EOF
                 [[entryPoints.internal.http.tls.domains]]
                     main = "nosuchserver.net"
                     sans = ["*.nosuchserver.net"]
+
+    [entryPoints.unifi_stun]
+        address = ":{# env "NOMAD_PORT_unifi_stun" #}/udp"
+
+    [entryPoints.unifi_cmdctrl]
+        address = ":{# env "NOMAD_PORT_unifi_cmdctrl" #}"
+
+
 
 [certificatesResolvers.nosuchserver.acme]
     #caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
