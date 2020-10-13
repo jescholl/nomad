@@ -6,7 +6,7 @@ job "unifi" {
   group "unifi" {
     count=1
     vault {
-      policies = ["traefik"]
+      policies = ["pki"]
     }
 
     constraint {
@@ -26,7 +26,7 @@ job "unifi" {
           stun = 3478
         }
         volumes = [
-          "local/certs:/unifi/cert",
+          "secrets/certs:/unifi/cert",
           "local/default/config.gateway.json:/unifi/data/sites/default/config.gateway.json",
           "local/default/config.properties:/unifi/data/sites/default/config.properties"
         ]
@@ -96,7 +96,7 @@ job "unifi" {
       }
 
       template {
-        destination = "local/certs/cert.pem"
+        destination = "secrets/certs/cert.pem"
         data = <<EOF
 {{ $ip_sans := printf "ip_sans=%s" (env "NOMAD_IP_https") }}
 {{ with secret "pki_int/issue/nosuchserver-dot-net" "common_name=unifi.nosuchserver.net" $ip_sans }}
@@ -105,7 +105,7 @@ EOF
       }
 
       template {
-        destination = "local/certs/privkey.pem"
+        destination = "secrets/certs/privkey.pem"
         data = <<EOF
 {{ $ip_sans := printf "ip_sans=%s" (env "NOMAD_IP_https") }}
 {{ with secret "pki_int/issue/nosuchserver-dot-net" "common_name=unifi.nosuchserver.net" $ip_sans }}
@@ -114,7 +114,7 @@ EOF
       }
 
       template {
-        destination = "local/certs/chain.pem"
+        destination = "secrets/certs/chain.pem"
         data = <<EOF
 {{ $ip_sans := printf "ip_sans=%s" (env "NOMAD_IP_https") }}
 {{ with secret "pki_int/issue/nosuchserver-dot-net" "common_name=unifi.nosuchserver.net" $ip_sans }}
