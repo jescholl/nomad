@@ -37,6 +37,13 @@ job "traefik" {
           # use as "fallback" for any non-registered services (with priority below normal)
           "traefik.http.routers.error-pages.rule=HostRegexp(`{host:.+}`)",
           "traefik.http.routers.error-pages.priority=10",
+
+          # Set intercept PUT/POST/PATCH/DELETE methods from external
+          "traefik.http.routers.error-pages-external-method-filter.entryPoints=external",
+          "traefik.http.routers.error-pages-external-method-filter.rule=Method(`PUT`, `POST`,`PATCH`, `DELETE`)",
+          "traefik.http.routers.error-pages-external-method-filter.priority=100",
+          "traefik.http.routers.error-pages-external-method-filter.service=error-pages@consulcatalog",
+
           # setup middleware for other services to use
           "traefik.http.middlewares.error-pages-middleware.errors.status=400-599",
           "traefik.http.middlewares.error-pages-middleware.errors.service=error-pages@consulcatalog",
@@ -117,6 +124,8 @@ job "traefik" {
           port "internal" { static = 443 }
           port "http_external" { static = 9080 }
           port "external" { static = 9443 }
+
+          port "dns" { static = 8053 }
 
           port "unifi_stun" { static = 3478 }
           port "unifi_cmdctrl" { static = 8080 }
@@ -222,6 +231,12 @@ EOF
 
     [entryPoints.unifi_cmdctrl]
         address = ":{# env "NOMAD_PORT_unifi_cmdctrl" #}"
+
+    [entryPoints.dns_tcp]
+        address = ":{# env "NOMAD_PORT_dns" #}/tcp"
+
+    [entryPoints.dns_udp]
+        address = ":{# env "NOMAD_PORT_dns" #}/udp"
 
 
 
