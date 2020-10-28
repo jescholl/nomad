@@ -1,16 +1,17 @@
 job "traefik" {
-  region      = "global"
   datacenters = ["dc1"]
   type        = "service"
 
-  #update {
-  #  max_parallel = 1
-  #  canary = 1
-  #}
-
+  update {
+    max_parallel = 1
+    canary       = 1
+    auto_revert  = true
+    auto_promote = true
+  }
 
   group "error-pages" {
-    count=1
+    count = 1
+
     task "error-pages" {
       driver = "docker"
       config {
@@ -51,8 +52,8 @@ job "traefik" {
         ]
 
         check {
-          type     = "tcp"
-          port     = "http"
+          type     = "http"
+          path     = "/404.html"
           interval = "30s"
           timeout  = "2s"
         }
@@ -67,13 +68,12 @@ job "traefik" {
     }
 
     task "keepalived" {
+      driver = "docker"
       env = {
         KEEPALIVED_VIRTUAL_IPS = "192.168.10.6"
         KEEPALIVED_STATE = "BACKUP"
         KEEPALIVED_UNICAST_PEERS = ""
       }
-
-      driver = "docker"
 
       config {
         image        = "osixia/keepalived:2.0.20"
@@ -108,6 +108,7 @@ job "traefik" {
                 options = {
                   size = "1G"
                   repl = "1"
+                  shared = "true"
                 }
               }
             }
@@ -129,6 +130,27 @@ job "traefik" {
 
           port "unifi_stun" { static = 3478 }
           port "unifi_cmdctrl" { static = 8080 }
+        }
+      }
+
+      service {
+        name = "traefik"
+        port = "internal"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.routers.traefik.entryPoints=internal",
+          "traefik.http.routers.traefik.service=api@internal",
+        ]
+
+        check {
+          type     = "http"
+          protocol = "https"
+          tls_skip_verify = true
+          # Fetching error-pages through traefik ensures the consulcatalog provider is working
+          header   { Host = ["error-pages.nosuchserver.net"] }
+          path     = "/404.html"
+          interval = "30s"
+          timeout  = "2s"
         }
       }
 
@@ -154,12 +176,6 @@ EOF
 # Whitelist assigned to "internal" endpoint
 [http.middlewares.internal-whitelist.ipWhiteList]
     sourceRange = ["192.168.10.0/24"]
-
-# Manually define the traefik api/dashboard service so it can be properly secured (insecure=false)
-[http.routers.dashboard]
-    rule = "Host(`traefik.nosuchserver.net`)"
-    service = "api@internal"
-    entryPoints = ["internal"]
 
 # Manually add services that are difficult to add dynamically
 [http.routers.consul]
@@ -254,9 +270,6 @@ EOF
 [api]
     dashboard = true
  
-[pilot]
-    token = "{# .Data.pilot_token #}"
-
 [providers]
     # Enable the file provider to define routers / middlewares / services in file
     [providers.file]
