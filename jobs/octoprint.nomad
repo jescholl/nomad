@@ -5,25 +5,34 @@ job "octoprint" {
   group "print" {
     count = 1
 
-    vault {
-      policies = ["pihole"]
+    constraint {
+      attribute = "${meta.prusa_printer}"
+      value = "true"
     }
 
     task "server" {
       driver = "docker"
 
       env {
-        # FIXME: this needs to be customized
-        #CAMERA_DEV = "/dev/video0"
+        CAMERA_DEV = "/dev/video0"
+        ENABLE_MJPG_STREAMER = "true"
       }
 
       config {
-        image = "octoprint/octoprint:1.4"
+        image = "octoprint/octoprint:1.5"
 
-        volumes = [
-        # FIXME: this needs to be customized
-        # "/dev/ACM0:/dev/ACM0"
-        ]
+          devices = [
+            {
+              host_path = "/dev/video0"
+              container_path = "/dev/video0"
+              cgroup_permissions = "rw"
+            },
+            {
+              host_path = "/dev/ttyACM0"
+              container_path = "/dev/ttyACM0"
+              cgroup_permissions = "rw"
+            }
+          ]
         mounts = [
           {
             target = "/octoprint"
@@ -32,9 +41,8 @@ job "octoprint" {
               driver_config {
                 name = "pxd"
                 options = {
-                  size = "1G"
+                  size = "10G"
                   repl = "2"
-                  shared = "true"
                 }
               }
             }
@@ -49,18 +57,12 @@ job "octoprint" {
         network {
           port  "http" { to = 80 }
         }
+        memory = 1024
       }
 
       service {
         name = "octoprint"
         port = "http"
-
-        check {
-          type = "http"
-          path = "/api/version"
-          interval = "30s"
-          timeout = "2s"
-        }
 
         tags = [
           "traefik.enable=true",
