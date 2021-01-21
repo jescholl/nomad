@@ -1,6 +1,7 @@
 job "portworx-dev" {
   type        = "service"
   datacenters = ["dc1"]
+  priority = 100
 
   group "portworx" {
     count = 3

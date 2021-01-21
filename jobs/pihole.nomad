@@ -1,6 +1,7 @@
 job "pihole" {
   datacenters = ["dc1"]
   type        = "service"
+  priority = 90
 
   update {
     max_parallel     = 1
