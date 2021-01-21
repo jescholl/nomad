@@ -14,17 +14,19 @@ job "unifi" {
       value = "true"
     }
 
+    network {
+      port "cmdctrl" { to = 8080 }
+      port "https" { to = 8443 }
+      port "http" { to = 8880 }
+      port "stun" { to = 3478 }
+    }
+
     task "unifi" {
       driver = "docker"
       config {
         # NOTE: My WAPs will be going EOL and newer versions may not support them
         image = "jacobalberty/unifi:5.13.32"
-        port_map = {
-          cmdctrl = 8080
-          https = 8443
-          http = 8880
-          stun = 3478
-        }
+        ports = ["cmdctrl", "https", "http", "stun"]
         volumes = [
           "secrets/certs:/unifi/cert",
           "local/default/config.gateway.json:/unifi/data/sites/default/config.gateway.json",
@@ -49,12 +51,6 @@ job "unifi" {
       resources {
         cpu    = 500
         memory = 1024
-        network {
-          port "cmdctrl" { to = 8080 }
-          port "https" { to = 8443 }
-          port "http" { to = 8880 }
-          port "stun" { to = 3478 }
-        }
       }
       service {
         name = "unifi-cmdctrl"

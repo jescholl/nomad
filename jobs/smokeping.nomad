@@ -4,13 +4,15 @@ job "smokeping" {
   group "smokeping" {
     count = 1
 
+    network {
+      port "http" { to = 80 }
+    }
+
     task "smokeping" {
       driver = "docker"
       config {
         image = "linuxserver/smokeping:latest"
-        port_map = {
-          http = 80
-        }
+        ports = ["http"]
         volumes = [
           "local/Targets:/config/Targets",
         ]
@@ -52,10 +54,6 @@ job "smokeping" {
       resources {
         cpu    = 100
         memory = 256
-
-        network {
-          port "http" { to = 80 }
-        }
       }
 
       service {

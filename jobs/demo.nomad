@@ -11,6 +11,10 @@ job "demo-webapp" {
       auto_promote     = true
     }
 
+    network {
+      port "http" {}
+    }
+
     task "server" {
       driver = "docker"
       shutdown_delay = "30s" # must be higher than traefik's refresh interval
@@ -25,14 +29,12 @@ job "demo-webapp" {
           "-text={\"version\": \"${VERSION}\", \"name\": \"${NOMAD_ALLOC_NAME}\"}",
           "-listen=:${NOMAD_PORT_http}"
         ]
+        ports = ["http"]
       }
 
       resources {
         cpu = 20
         memory = 10
-        network {
-          port  "http"{}
-        }
       }
 
       service {

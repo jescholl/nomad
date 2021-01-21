@@ -8,6 +8,11 @@ job "observium" {
       policies = ["observium"]
     }
 
+    network {
+      port "mysql" { to = 3306 }
+      port "http" { to = 8000 }
+    }
+
     task "mysql" {
       driver = "docker"
       env = {
@@ -24,9 +29,7 @@ job "observium" {
         args = [
           "--default-authentication-plugin=mysql_native_password"
         ]
-        port_map = {
-          mysql = 3306
-        }
+        ports = ["mysql"]
         volumes = [
           "name=observium_mysql,size=1G,repl=2:/var/lib/mysql",
         ]
@@ -35,9 +38,6 @@ job "observium" {
       resources {
         cpu = 100
         memory = 1024
-        network {
-          port "mysql" { to = 3306 }
-        }
       }
 
       template {
@@ -55,9 +55,7 @@ job "observium" {
       driver = "docker"
       config {
         image = "jescholl/observium:latest"
-        port_map = {
-          http = 8000
-        }
+        ports = ["http"]
         volumes = [
           "local/config.php:/config/config.php",
         ]
@@ -108,11 +106,6 @@ job "observium" {
             }
           },
         ]
-      }
-      resources {
-        network {
-          port "http" { to = 8000 }
-        }
       }
 
       service {

@@ -12,21 +12,19 @@ job "traefik" {
   group "error-pages" {
     count = 1
 
+    network {
+      port "http" { to = 8080 }
+    }
+
     task "error-pages" {
       driver = "docker"
       config {
         image = "tarampampam/error-pages:1.3.0"
-        port_map = {
-          http = 8080
-        }
+        ports = ["http"]
       }
       resources {
         cpu    = 20
         memory = 10
-
-        network {
-          port "http" { to = 8080 }
-        }
       }
       service {
         name = "error-pages"
@@ -65,6 +63,18 @@ job "traefik" {
     count = 1
     vault {
       policies = ["traefik"]
+    }
+
+    network {
+      port "http_internal" { static = 80 }
+      port "internal" { static = 443 }
+      port "http_external" { static = 9080 }
+      port "external" { static = 9443 }
+
+      port "dns" { static = 8053 }
+
+      port "unifi_stun" { static = 3478 }
+      port "unifi_cmdctrl" { static = 8080 }
     }
 
     task "keepalived" {
@@ -119,18 +129,6 @@ job "traefik" {
       resources {
         cpu    = 100
         memory = 128
-
-        network {
-          port "http_internal" { static = 80 }
-          port "internal" { static = 443 }
-          port "http_external" { static = 9080 }
-          port "external" { static = 9443 }
-
-          port "dns" { static = 8053 }
-
-          port "unifi_stun" { static = 3478 }
-          port "unifi_cmdctrl" { static = 8080 }
-        }
       }
 
       service {

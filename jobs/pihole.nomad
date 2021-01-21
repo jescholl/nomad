@@ -16,6 +16,11 @@ job "pihole" {
       policies = ["pihole"]
     }
 
+    network {
+      port  "http" { static = 80 }
+      port  "dns" { static = 53 }
+    }
+
     task "keepalived" {
       driver = "docker"
       shutdown_delay = "30s"
@@ -71,19 +76,12 @@ job "pihole" {
             }
           }
         ]
-        port_map = {
-          http = 80
-          dns = 53
-        }
+        ports = ["http", "dns"]
       }
 
       resources {
         cpu = 200
         memory = 200
-        network {
-          port  "http" { static = 80 }
-          port  "dns" { static = 53 }
-        }
       }
 
       service {

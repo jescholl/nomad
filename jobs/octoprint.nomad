@@ -10,12 +10,17 @@ job "octoprint" {
       value = "true"
     }
 
+    network {
+      port  "http" { to = 80 }
+    }
+
     task "server" {
       driver = "docker"
 
       env {
-        CAMERA_DEV = "/dev/video0"
+        CAMERA_DEV = "/dev/video1"
         ENABLE_MJPG_STREAMER = "true"
+        MJPG_STREAMER_INPUT = "-n -r 1280x1024"
       }
 
       config {
@@ -23,8 +28,8 @@ job "octoprint" {
 
           devices = [
             {
-              host_path = "/dev/video0"
-              container_path = "/dev/video0"
+              host_path = "/dev/video1"
+              container_path = "/dev/video1"
               cgroup_permissions = "rw"
             },
             {
@@ -48,15 +53,10 @@ job "octoprint" {
             }
           }
         ]
-        port_map = {
-          http = 80
-        }
+        ports = ["http"]
       }
 
       resources {
-        network {
-          port  "http" { to = 80 }
-        }
         memory = 1024
       }
 

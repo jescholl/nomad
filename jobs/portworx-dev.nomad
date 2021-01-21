@@ -35,6 +35,12 @@ job "portworx-dev" {
       stagger          = "30s"
     }
 
+     network {
+       port "portworx" {
+         static = "9001"
+       }
+     }
+
     task "px-dev-node" {
       driver = "docker"
       kill_timeout = "120s"   # allow portworx 2 min to gracefully shut down
@@ -89,12 +95,6 @@ job "portworx-dev" {
       resources {
         cpu    = 1024
         memory = 2048
-
-        network {
-          port "portworx" {
-            static = "9001"
-          }
-        }
       }
     }
   }
