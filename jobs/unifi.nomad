@@ -32,21 +32,20 @@ job "unifi" {
           "local/default/config.gateway.json:/unifi/data/sites/default/config.gateway.json",
           "local/default/config.properties:/unifi/data/sites/default/config.properties"
         ]
-        mounts = [
-          {
-            target = "/unifi"
-            source = "unifi"
-            volume_options {
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "4G"
-                  repl = "2"
-                }
+
+        mount {
+          target = "/unifi"
+          source = "unifi"
+          volume_options {
+            driver_config {
+              name = "pxd"
+              options {
+                size = "4G"
+                repl = "2"
               }
             }
           }
-        ]
+        }
       }
       resources {
         cpu    = 500

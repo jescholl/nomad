@@ -24,35 +24,34 @@ job "octoprint" {
       }
 
       config {
-        image = "octoprint/octoprint:1.5"
+        image = "octoprint/octoprint:1.5.3"
 
-          devices = [
-            {
-              host_path = "/dev/video1"
-              container_path = "/dev/video1"
-              cgroup_permissions = "rw"
-            },
-            {
-              host_path = "/dev/ttyACM0"
-              container_path = "/dev/ttyACM0"
-              cgroup_permissions = "rw"
-            }
-          ]
-        mounts = [
+        devices = [
           {
-            target = "/octoprint"
-            source = "octoprint"
-            volume_options {
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "10G"
-                  repl = "2"
-                }
+            host_path = "/dev/video1"
+            container_path = "/dev/video1"
+            cgroup_permissions = "rw"
+          },
+          {
+            host_path = "/dev/ttyACM0"
+            container_path = "/dev/ttyACM0"
+            cgroup_permissions = "rw"
+          }
+        ]
+
+        mount {
+          target = "/octoprint"
+          source = "octoprint"
+          volume_options {
+            driver_config {
+              name = "pxd"
+              options {
+                size = "10G"
+                repl = "2"
               }
             }
           }
-        ]
+        }
         ports = ["http"]
       }
 

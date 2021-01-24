@@ -73,13 +73,15 @@ job "traefik" {
 
       port "dns" { static = 8053 }
 
+      port "plex" { static = 32400 }
+
       port "unifi_stun" { static = 3478 }
       port "unifi_cmdctrl" { static = 8080 }
     }
 
     task "keepalived" {
       driver = "docker"
-      env = {
+      env {
         KEEPALIVED_VIRTUAL_IPS = "192.168.10.6"
         KEEPALIVED_STATE = "BACKUP"
         KEEPALIVED_UNICAST_PEERS = ""
@@ -108,22 +110,21 @@ job "traefik" {
           "local/dynamic/traefik.toml:/etc/traefik/dynamic/traefik.toml",
           "/usr/local/share/ca-certificates/vault_CAs.crt:/vault_ca.crt"
         ]
-        mounts = [
-          {
-            target = "/etc/traefik/acme"
-            source = "traefik_certs"
-            volume_options {
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "1"
-                  shared = "true"
-                }
+        mount {
+          type = "volume"
+          target = "/etc/traefik/acme"
+          source = "traefik_certs"
+          volume_options {
+            driver_config {
+              name = "pxd"
+              options {
+                size = "1G"
+                repl = "1"
+                shared = "true"
               }
             }
           }
-        ]
+        }
       }
 
       resources {
@@ -251,6 +252,9 @@ EOF
 
     [entryPoints.dns_udp]
         address = ":{# env "NOMAD_PORT_dns" #}/udp"
+
+    [entryPoints.plex]
+        address = ":{# env "NOMAD_PORT_plex" #}/tcp"
 
 
 

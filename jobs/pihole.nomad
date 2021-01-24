@@ -26,7 +26,7 @@ job "pihole" {
       driver = "docker"
       shutdown_delay = "30s"
 
-      env = {
+      env {
         KEEPALIVED_VIRTUAL_IPS = "192.168.10.7"
         KEEPALIVED_STATE = "BACKUP"
         KEEPALIVED_ROUTER_ID = 61
@@ -49,7 +49,7 @@ job "pihole" {
       shutdown_delay = "30s"
 
       env {
-        TZ = "America/Los_Angeles",
+        TZ = "America/Los_Angeles"
         VIRTUAL_HOST = "pihole.nosuchserver.net"
         version = 2
       }
@@ -61,22 +61,20 @@ job "pihole" {
         volumes = [
           "local/etc-dnsmasq.d/:/etc/dnsmasq.d/"
         ]
-        mounts = [
-          {
-            target = "/etc/pihole/"
-            source = "pihole"
-            volume_options {
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "2"
-                  shared = "true"
-                }
+        mount {
+          target = "/etc/pihole/"
+          source = "pihole"
+          volume_options {
+            driver_config {
+              name = "pxd"
+              options {
+                size = "1G"
+                repl = "2"
+                shared = "true"
               }
             }
           }
-        ]
+        }
         ports = ["http", "dns"]
       }
 

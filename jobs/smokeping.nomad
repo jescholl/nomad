@@ -17,38 +17,39 @@ job "smokeping" {
           "local/Targets:/config/Targets",
         ]
 
-        mounts = [
-          {
-            target = "/config"
-            source = "smokeping_config"
-            readonly = false
-            volume_options {
-              no_copy = false
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "2"
-                }
+        mount {
+          type = "volume"
+          target = "/config"
+          source = "smokeping_config"
+          readonly = false
+          volume_options {
+            no_copy = false
+            driver_config {
+              name = "pxd"
+              options {
+                size = "1G"
+                repl = "2"
               }
             }
-          },
-          {
-            target = "/data"
-            source = "smokeping_data"
-            readonly = false
-            volume_options {
-              no_copy = false
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "2"
-                }
+          }
+        }
+
+        mount {
+          type = "volume"
+          target = "/data"
+          source = "smokeping_data"
+          readonly = false
+          volume_options {
+            no_copy = false
+            driver_config {
+              name = "pxd"
+              options {
+                size = "1G"
+                repl = "2"
               }
             }
-          },
-        ]
+          }
+        }
       }
 
       resources {

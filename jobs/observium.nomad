@@ -15,11 +15,11 @@ job "observium" {
 
     task "mysql" {
       driver = "docker"
-      env = {
-        TZ = "America/Los_Angeles",
-        MYSQL_ONETIME_PASSWORD = "true",
-        MYSQL_RANDOM_ROOT_PASSWORD = "true",
-        MYSQL_USER = "observium",
+      env {
+        TZ = "America/Los_Angeles"
+        MYSQL_ONETIME_PASSWORD = "true"
+        MYSQL_RANDOM_ROOT_PASSWORD = "true"
+        MYSQL_USER = "observium"
         MYSQL_DATABASE = "observium"
       }
 
@@ -59,53 +59,53 @@ job "observium" {
         volumes = [
           "local/config.php:/config/config.php",
         ]
-        mounts = [
-          {
-            target = "/opt/observium/html"
-            source = "observium_html"
-            readonly = false
-            volume_options {
-              no_copy = false
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "2"
-                }
+        mount {
+          target = "/opt/observium/html"
+          source = "observium_html"
+          readonly = false
+          volume_options {
+            no_copy = false
+            driver_config {
+              name = "pxd"
+              options {
+                size = "1G"
+                repl = "1"
               }
             }
-          },
-          {
-            target = "/opt/observium/rrd"
-            source = "observium_rrd"
-            readonly = false
-            volume_options {
-              no_copy = false
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "2"
-                }
+          }
+        }
+
+        mount  {
+          target = "/opt/observium/rrd"
+          source = "observium_rrd"
+          readonly = false
+          volume_options {
+            no_copy = false
+            driver_config {
+              name = "pxd"
+              options {
+                size = "5G"
+                repl = "2"
               }
             }
-          },
-          {
-            target = "/opt/observium/logs"
-            source = "observium_logs"
-            readonly = false
-            volume_options {
-              no_copy = false
-              driver_config {
-                name = "pxd"
-                options = {
-                  size = "1G"
-                  repl = "1"
-                }
+          }
+        }
+
+        mount {
+          target = "/opt/observium/logs"
+          source = "observium_logs"
+          readonly = false
+          volume_options {
+            no_copy = false
+            driver_config {
+              name = "pxd"
+              options {
+                size = "1G"
+                repl = "1"
               }
             }
-          },
-        ]
+          }
+        }
       }
 
       service {
