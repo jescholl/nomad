@@ -67,7 +67,7 @@ job "portworx-dev" {
 
       # container config
       config {
-        image        = "portworx/px-dev:2.1.1"
+        image        = "portworx/px-dev:2.6.3"
         network_mode = "host"
         ipc_mode = "host"
         privileged = true
@@ -95,7 +95,7 @@ job "portworx-dev" {
       # resource config
       resources {
         cpu    = 1024
-        memory = 2048
+        memory = 4096
       }
     }
   }
