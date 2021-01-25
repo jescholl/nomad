@@ -2,19 +2,20 @@ job "webserver" {
   datacenters = ["dc1"]
 
   group "webserver" {
+    network {
+      port  "http" {}
+    }
+
     task "server" {
       driver = "docker"
       config {
+        ports = ["http"]
         image = "hashicorp/demo-prometheus-instrumentation:latest"
       }
 
       resources {
         cpu = 500
         memory = 256
-        network {
-          mbits = 10
-          port  "http"{}
-        }
       }
 
       service {
@@ -25,7 +26,12 @@ job "webserver" {
           "testweb",
           "traefik.enable=true",
           "traefik.http.routers.webserver.entryPoints=internal",
-          "prometheus.metrics_path=/metrics",
+          "prometheus.conf.metrics_path=/metrics",
+          "prometheus.rules.0.alert='Webserver Down'",
+          "prometheus.rules.0.expr=absent(up{job='webserver'})",
+          "prometheus.rules.0.for=10s",
+          "prometheus.rules.0.labels.severity=critical",
+          "prometheus.rules.0.annotations.description='The webserver is down'",
         ]
 
         check {
