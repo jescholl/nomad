@@ -38,7 +38,7 @@ job "plex" {
       driver = "docker"
 
       env {
-        ADVERTISE_IP = "${attr.unique.network.ip-address}"
+        ADVERTISE_IP = "http://${attr.unique.network.ip-address}:${NOMAD_PORT_web}/"
         TZ = "America/Los_Angeles"
         ALLOWED_NETWORKS = "192.168.10.0/24"
       }
