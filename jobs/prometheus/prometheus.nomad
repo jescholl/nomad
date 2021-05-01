@@ -21,13 +21,11 @@ job "prometheus" {
       config {
         ports = ["web"]
         image = "prom/prometheus:latest"
-        #image = "hashicorp/http-echo"
-        #args = [ "-text=foo"]
-        volumes = [
-          "local/webserver_alert.yml:/etc/prometheus/webserver_alert.yml",
-          "local/prometheus.yml:/etc/prometheus/prometheus.yml",
-          "/usr/local/share/ca-certificates/vault_CAs.crt:/vault_ca.crt",
-        ]
+        mount {
+          type = "bind"
+          target = "/etc/prometheus/"
+          source = "local"
+        }
       }
       service {
         name = "prometheus"
@@ -37,12 +35,19 @@ job "prometheus" {
         ]
 
         port = "web"
-        #check {
-        #  type     = "http"
-        #  path     = "/-/healthy"
-        #  interval = "30s"
-        #  timeout  = "2s"
-        #}
+
+        check {
+          type     = "http"
+          path     = "/-/healthy"
+          interval = "30s"
+          timeout  = "2s"
+        }
+      }
+
+      artifact {
+        source = "https://active.vault.service.consul:8200/v1/pki/ca/pem"
+        mode = "file"
+        destination = "local/vault_ca.crt"
       }
 
       template {
@@ -89,7 +94,7 @@ alerting:
       services: ['alertmanager']
       scheme: https
       tls_config:
-        ca_file: /vault_ca.crt
+        ca_file: /etc/prometheus/vault_ca.crt
 
 rule_files:
   - "dynamic_alerts.yml"
@@ -101,7 +106,7 @@ scrape_configs:
       services: ['nomad-client', 'nomad']
       scheme: https
       tls_config:
-        ca_file: /vault_ca.crt
+        ca_file: /etc/prometheus/vault_ca.crt
 
     relabel_configs:
     - source_labels: ['__meta_consul_tags']
@@ -130,7 +135,7 @@ scrape_configs:
       services: ['{{ $service.Name }}']
       scheme: https
       tls_config:
-        ca_file: /vault_ca.crt
+        ca_file: /etc/prometheus/vault_ca.crt
 {{ "# Dynamic configs from consul tags" | indent 4 }}
 # {{ scratch.Get $service.Name }}
 {{ scratch.Get $service.Name | explodeMap | toYAML | indent 4 }}
