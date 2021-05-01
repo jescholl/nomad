@@ -108,8 +108,8 @@ scrape_configs:
 # Dynamically defined services from consul
 {{- range $service := services -}}
   {{- range $tag := $service.Tags }}
-    {{- if $tag | regexMatch "^prometheus.conf.*=" }}
-      {{- $tag := ($tag | regexReplaceAll "^prometheus.conf." "") }}
+    {{- if $tag | regexMatch "^prometheus\\.conf\\..*=" }}
+      {{- $tag := ($tag | regexReplaceAll "^prometheus\\.conf\\." "") }}
       {{- $k := (index ($tag | split "=") 0 | replaceAll "." "/") }}
       {{- $v := index ($tag | split "=") 1 }}
       {{- scratch.MapSet $service.Name $k $v }}
