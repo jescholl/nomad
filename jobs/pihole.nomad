@@ -10,17 +10,64 @@ job "pihole" {
     auto_promote     = true
   }
 
-  group "dns" {
+  vault {
+    policies = ["pihole"]
+  }
+
+  group "metrics" {
     count = 1
 
-    vault {
-      policies = ["pihole"]
+    network {
+      port "prometheus" {}
     }
+
+    task "exporter" {
+      driver = "docker"
+      config {
+        ports = ["prometheus"]
+        image = "ekofr/pihole-exporter:latest"
+        volumes = [
+          "/etc/ssl/certs:/etc/ssl/certs:ro"
+        ]
+      }
+
+      env {
+        PIHOLE_PROTOCOL = "https"
+        PIHOLE_HOSTNAME = "pihole.nosuchserver.net"
+        PIHOLE_PORT = 443
+        INTERVAL = "30s"
+        PORT = NOMAD_PORT_prometheus
+      }
+
+      template {
+        destination = "secrets/pihole.env"
+        env = true
+        data = <<EOF
+          {{ with secret "secret/app/pihole/web" }}
+          PIHOLE_PASSWORD='{{ .Data.password }}'
+          {{ end }}
+        EOF
+      }
+
+      service {
+        name = "pihole-metrics"
+        port = "prometheus"
+
+        tags = [
+          "prometheus.conf.metrics_path=/metrics"
+        ]
+      }
+    }
+  }
+  
+  group "dns" {
+    count = 1
 
     network {
       port  "http" { static = 80 }
       port  "dns" { static = 53 }
     }
+
 
     task "keepalived" {
       driver = "docker"
@@ -97,9 +144,6 @@ job "pihole" {
         tags = [
           "traefik.enable=true",
           "traefik.http.routers.pihole.entryPoints=internal",
-          #"traefik.http.middlewares.pihole-prefix.addprefix.prefix=/admin",
-          #"traefik.http.middlewares.pihole-middleware2.headers.customrequestheaders.Host=pi.hole",
-          #"traefik.http.routers.pihole.middlewares=pihole-prefix@consulcatalog",
         ]
       }
       service {
