@@ -77,6 +77,9 @@ job "traefik" {
 
       port "unifi_stun" { static = 3478 }
       port "unifi_cmdctrl" { static = 8080 }
+
+      port "minecraft" { static = 25565 }
+      port "minecraft_rcon" { static = 25575 }
     }
 
     task "keepalived" {
@@ -102,7 +105,7 @@ job "traefik" {
       driver = "docker"
 
       config {
-        image        = "traefik:v2.3"
+        image        = "traefik:v2.4"
         network_mode = "host"
 
         volumes = [
@@ -255,6 +258,11 @@ EOF
 
     [entryPoints.plex]
         address = ":{# env "NOMAD_PORT_plex" #}/tcp"
+
+    [entryPoints.minecraft]
+        address = ":{# env "NOMAD_PORT_minecraft" #}/tcp"
+    [entryPoints.minecraft_rcon]
+        address = ":{# env "NOMAD_PORT_minecraft_rcon" #}/tcp"
 
 
 
