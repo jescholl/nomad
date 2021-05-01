@@ -56,23 +56,10 @@ job "prometheus" {
         destination = "local/dynamic_alerts.yml"
         data = <<EOH
 ---
-{{- define "jsonHashToList" }}{"rules": [{{ range $label, $map := . }}{{ $map | toJSONPretty }},{{ end }}]}{{ end }}
-groups:
-{{- range $service := services -}}
-  {{- range $tag := $service.Tags }}
-    {{- if $tag | regexMatch "^prometheus.rules.*=" }}
-      {{- $tag := ($tag | regexReplaceAll "^prometheus.rules." "") }}
-      {{- $k := (index ($tag | split "=") 0) }}
-      {{- $v := $tag | regexReplaceAll (print "^" $k "=") "" }}
-      {{- scratch.MapSet $service.Name ($k | replaceAll "." "/") $v }}
-    {{- end }}
-  {{- end }}
-  {{- if (scratch.Key $service.Name) }}
-- name: {{ $service.Name }}
-  {{- $out := scratch.Get $service.Name | explodeMap }}
-  {{- $json := (executeTemplate "jsonHashToList" $out)  }}
-{{ $json | regexReplaceAll ",]" "]" | parseJSON | toYAML | indent 2 }}
-{{ end }}
+groups: 
+{{ range ls "config/prometheus/alerts" }}
+- name: {{ .Key }}
+{{ .Value | indent 2 }}
 {{ end }}
 EOH
       }
