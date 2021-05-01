@@ -3,11 +3,53 @@ job "plex" {
   datacenters = ["dc1"]
   type        = "service"
 
+  vault {
+    policies = ["plex"]
+  }
+
+  group "metrics" {
+    count = 1
+    network {
+      port "prometheus" { to = "9594" }
+    }
+
+    task "exporter" {
+      driver = "docker"
+      config {
+        ports = ["prometheus"]
+        image = "granra/plex_exporter:v0.2.2"
+        args = [ "--config-path", "/secrets/exporter.yml" ]
+      }
+
+      template {
+        destination = "secrets/exporter.yml"
+        data = <<-EOF
+          {{ with secret "secret/app/plex/secrets" }}
+          ---
+          address: ":9594"
+          logLevel: "debug"
+          logFormat: "text"
+          autoDiscover: false
+          token: "{{ .Data.api_token }}"
+          servers:
+          - baseUrl: http://plex.nosuchserver.net:32400
+          {{ end }}
+        EOF
+      }
+
+      service {
+        name = "plex-metrics"
+        port = "prometheus"
+
+        tags = [
+          "prometheus.conf.metrics_path=/metrics"
+        ]
+      }
+    }
+  }
+
   group "plex" {
     count=1
-    vault {
-      policies = ["plex"]
-    }
 
     network {
       port "web" { static = 32400 }
