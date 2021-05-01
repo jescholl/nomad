@@ -80,6 +80,8 @@ job "traefik" {
 
       port "minecraft" { static = 25565 }
       port "minecraft_rcon" { static = 25575 }
+
+      port "prometheus" {}
     }
 
     task "keepalived" {
@@ -156,6 +158,14 @@ job "traefik" {
         }
       }
 
+      service {
+        name = "traefik-metrics"
+        port = "prometheus"
+        tags = [
+          "prometheus.conf.metrics_path=/metrics"
+        ]
+      }
+
       template {
         destination = "local/traefik.env"
         env = true
@@ -209,7 +219,15 @@ EOF
         right_delimiter = "#}"
         data = <<EOF
 {# with secret "secret/app/traefik/traefik" #}
+[metrics]
+    [metrics.prometheus]
+        entryPoint = "prometheus"
+
+
 [entryPoints]
+    [entryPoints.prometheus]
+        address = ":{# env "NOMAD_PORT_prometheus" #}"
+
     # redirect http->https on external
     [entryPoints.http_external]
         address = ":{# env "NOMAD_PORT_http_external" #}"
