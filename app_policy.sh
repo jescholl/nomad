@@ -20,3 +20,4 @@ EOT
 app_policy plex
 app_policy observium
 app_policy pihole
+app_policy alertmanager
