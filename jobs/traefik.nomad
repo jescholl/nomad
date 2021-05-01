@@ -313,6 +313,10 @@ EOF
             address = "127.0.0.1:8500"
             scheme  = "http"
 
+[tls.options]
+    [tls.options.default]
+        sniStrict = true
+
 [log]
     level = "INFO"
 {# end #}
