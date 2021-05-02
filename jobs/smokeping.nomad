@@ -62,8 +62,9 @@ job "smokeping" {
         port = "http"
 
         tags = [
+          "traefik.http.middlewares.smokeping-strip-prefix.stripprefix.prefixes=/smokeping/",
           "traefik.http.middlewares.smokeping-add-prefix.addprefix.prefix=/smokeping/",
-          "traefik.http.routers.smokeping.middlewares=smokeping-add-prefix@consulcatalog",
+          "traefik.http.routers.smokeping.middlewares=smokeping-strip-prefix@consulcatalog,smokeping-add-prefix@consulcatalog",
           "traefik.enable=true",
           "traefik.http.routers.smokeping.entryPoints=internal"
         ]
