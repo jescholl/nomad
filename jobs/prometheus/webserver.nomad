@@ -1,9 +1,45 @@
+locals {
+  service_name = "webserver"
+}
+
 job "webserver" {
   datacenters = ["dc1"]
 
   group "webserver" {
     network {
       port  "http" {}
+    }
+
+    task "configure_alerts" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+      config {
+        image = "consul:${attr.consul.version}"
+        network_mode = "host"
+        args = [ "kv", "put", "config/prometheus/alerts/${local.service_name}", "@local/alerts.yml" ]
+      }
+
+
+      template {
+        destination = "local/alerts.yml"
+        data = yamlencode(
+          {
+            rules = [
+              {
+                alert = "Webserver Down"
+                expr = "absent(up{job='${local.service_name}'})"
+                for = "10s"
+                labels = { severity = "critical" }
+                annotations = { description = "The webserver is down" }
+              }
+            ]
+          }
+        )
+      }
     }
 
     task "server" {
@@ -19,7 +55,7 @@ job "webserver" {
       }
 
       service {
-        name = "webserver"
+        name = local.service_name
         port = "http"
 
         tags = [
@@ -27,11 +63,6 @@ job "webserver" {
           "traefik.enable=true",
           "traefik.http.routers.webserver.entryPoints=internal",
           "prometheus.conf.metrics_path=/metrics",
-          "prometheus.rules.0.alert='Webserver Down'",
-          "prometheus.rules.0.expr=absent(up{job='webserver'})",
-          "prometheus.rules.0.for=10s",
-          "prometheus.rules.0.labels.severity=critical",
-          "prometheus.rules.0.annotations.description='The webserver is down'",
         ]
 
         check {
