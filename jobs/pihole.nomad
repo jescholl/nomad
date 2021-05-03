@@ -59,8 +59,8 @@ job "pihole" {
       }
     }
   }
-  
-  group "dns" {
+
+  group "main" {
     count = 1
 
     network {
@@ -91,7 +91,7 @@ job "pihole" {
       }
     }
 
-    task "server" {
+    task "pihole" {
       driver = "docker"
       shutdown_delay = "30s"
 
@@ -165,7 +165,7 @@ job "pihole" {
           "traefik.tcp.routers.pihole-dns.rule=HostSNI(`*`)",
         ]
       }
-      
+
       template {
         destination = "secrets/pihole.env"
         env = true

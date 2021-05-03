@@ -1,7 +1,7 @@
 job "netboot" {
   datacenters = ["dc1"]
   type = "service"
-  group "netboot" {
+  group "main" {
     count = 1
 
     network {

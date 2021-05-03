@@ -59,7 +59,7 @@ job "traefik" {
     }
   }
 
-  group "traefik" {
+  group "main" {
     count = 1
     vault {
       policies = ["traefik"]
@@ -206,7 +206,7 @@ EOF
         [[http.services.nomad.loadBalancer.servers]]
             url = "http://{# .Address #}:{# .Port #}"
         {# end #}
-  
+
     [http.services.consul.loadBalancer]
         [[http.services.consul.loadBalancer.servers]]
             url = "http://127.0.0.1:8500"
@@ -297,18 +297,18 @@ EOF
 
 [api]
     dashboard = true
- 
+
 [providers]
     # Enable the file provider to define routers / middlewares / services in file
     [providers.file]
         directory = "/etc/traefik/dynamic"
-  
+
     # Enable Consul Catalog configuration backend.
     [providers.consulCatalog]
         exposedByDefault = false
         prefix           = "traefik"
         defaultRule      = "Host(`{{ .Name }}.nosuchserver.net`)"
-    
+
         [providers.consulCatalog.endpoint]
             address = "127.0.0.1:8500"
             scheme  = "http"

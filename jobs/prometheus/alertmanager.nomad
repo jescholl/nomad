@@ -6,7 +6,7 @@ job "alertmanager" {
     policies = ["alertmanager"]
   }
 
-  group "alerting" {
+  group "main" {
     network {
       port "web" { to = 9093 }
     }

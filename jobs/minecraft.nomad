@@ -15,7 +15,7 @@ job "minecraft" {
   datacenters = ["dc1"]
   type        = "service"
 
-  group "server" {
+  group "main" {
     count = 1
 
     network {
@@ -25,7 +25,7 @@ job "minecraft" {
       port  "prometheus" { to = 9225 }
     }
 
-    task "server" {
+    task "minecraft" {
       driver = "docker"
 
       env {

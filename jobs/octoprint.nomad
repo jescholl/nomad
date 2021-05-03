@@ -2,7 +2,7 @@ job "octoprint" {
   datacenters = ["dc1"]
   type        = "service"
 
-  group "print" {
+  group "main" {
     count = 1
 
     constraint {
@@ -14,7 +14,7 @@ job "octoprint" {
       port  "http" { to = 80 }
     }
 
-    task "server" {
+    task "octoprint" {
       driver = "docker"
 
       env {

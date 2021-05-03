@@ -3,7 +3,7 @@ job "unifi" {
   datacenters = ["dc1"]
   type        = "service"
 
-  group "unifi" {
+  group "main" {
     count=1
     vault {
       policies = ["pki"]

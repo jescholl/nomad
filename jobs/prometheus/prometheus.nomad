@@ -2,7 +2,7 @@ job "prometheus" {
   datacenters = ["dc1"]
   type = "service"
 
-  group "prometheus" {
+  group "main" {
     count = 1
 
     restart {
@@ -56,7 +56,7 @@ job "prometheus" {
         destination = "local/dynamic_alerts.yml"
         data = <<EOH
 ---
-groups: 
+groups:
 {{ range ls "config/prometheus/alerts" }}
 - name: {{ .Key }}
 {{ .Value | indent 2 }}

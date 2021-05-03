@@ -1,7 +1,7 @@
 job "smokeping" {
   datacenters = ["dc1"]
   type = "service"
-  group "smokeping" {
+  group "main" {
     count = 1
 
     network {

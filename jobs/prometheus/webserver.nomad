@@ -5,7 +5,7 @@ locals {
 job "webserver" {
   datacenters = ["dc1"]
 
-  group "webserver" {
+  group "main" {
     network {
       port  "http" {}
     }
@@ -42,7 +42,7 @@ job "webserver" {
       }
     }
 
-    task "server" {
+    task "webserver" {
       driver = "docker"
       config {
         ports = ["http"]

@@ -48,7 +48,7 @@ job "plex" {
     }
   }
 
-  group "plex" {
+  group "main" {
     count=1
 
     network {
@@ -76,7 +76,7 @@ job "plex" {
       source = "plex_config"
     }
 
-    task "server" {
+    task "main" {
       driver = "docker"
 
       env {

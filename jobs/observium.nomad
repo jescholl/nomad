@@ -1,7 +1,7 @@
 job "observium" {
   datacenters = ["dc1"]
   type = "service"
-  group "observium" {
+  group "main" {
     count = 1
 
     vault {
