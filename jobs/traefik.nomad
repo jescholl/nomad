@@ -187,7 +187,7 @@ EOF
 
 # Whitelist assigned to "internal" endpoint
 [http.middlewares.internal-whitelist.ipWhiteList]
-    sourceRange = ["192.168.10.0/24"]
+    sourceRange = ["192.168.10.0/24", "172.16.0.0/12"]
 
 # Manually add services that are difficult to add dynamically
 [http.routers.consul]
