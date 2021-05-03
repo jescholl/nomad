@@ -31,7 +31,7 @@ job "grafana" {
       }
 
       env {
-        GF_INSTALL_PLUGINS = "grafana-piechart-panel"
+        GF_INSTALL_PLUGINS = "grafana-piechart-panel,natel-discrete-panel"
       }
 
       service {
