@@ -25,6 +25,11 @@ job "minecraft" {
       port  "prometheus" { to = 9225 }
     }
 
+    volume "minecraft" {
+      type = "host"
+      source = "minecraft"
+    }
+
     task "minecraft" {
       driver = "docker"
 
@@ -57,20 +62,25 @@ job "minecraft" {
       config {
         image = "itzg/minecraft-server:latest"
 
-        mount {
-          target = "/data"
-          source = "minecraft"
-          volume_options {
-            driver_config {
-              name = "pxd"
-              options {
-                size = "10G"
-                repl = "2"
-              }
-            }
-          }
-        }
+        #mount {
+        #  target = "/data"
+        #  source = "minecraft"
+        #  volume_options {
+        #    driver_config {
+        #      name = "pxd"
+        #      options {
+        #        size = "10G"
+        #        repl = "2"
+        #      }
+        #    }
+        #  }
+        #}
         ports = ["minecraft", "rcon", "prometheus"]
+      }
+
+      volume_mount {
+        volume = "minecraft"
+        destination = "/data"
       }
 
       resources {
