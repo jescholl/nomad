@@ -31,6 +31,11 @@ job "pihole" {
         ]
       }
 
+      resources {
+        cpu = 10
+        memory = 10
+      }
+
       env {
         PIHOLE_PROTOCOL = "https"
         PIHOLE_HOSTNAME = "pihole.nosuchserver.net"
@@ -89,6 +94,11 @@ job "pihole" {
           "NET_RAW"
         ]
       }
+
+      resources {
+        cpu = 10
+        memory = 10
+      }
     }
 
     task "pihole" {
@@ -126,7 +136,7 @@ job "pihole" {
       }
 
       resources {
-        cpu = 200
+        cpu = 100
         memory = 200
       }
 

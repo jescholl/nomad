@@ -21,6 +21,11 @@ job "plex" {
         args = [ "--config-path", "/secrets/exporter.yml" ]
       }
 
+      resources {
+        cpu    = 10
+        memory = 10
+      }
+
       template {
         destination = "secrets/exporter.yml"
         data = <<-EOF
@@ -120,7 +125,7 @@ job "plex" {
       }
 
       resources {
-        cpu    = 500
+        cpu    = 250
         memory = 5 * 1024
       }
 

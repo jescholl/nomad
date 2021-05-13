@@ -30,6 +30,11 @@ job "grafana" {
         }
       }
 
+      resources {
+        cpu = 10
+        memory = 300
+      }
+
       env {
         GF_INSTALL_PLUGINS = "grafana-piechart-panel,natel-discrete-panel"
       }

@@ -31,6 +31,11 @@ job "alertmanager" {
         ]
       }
 
+      resources {
+        cpu = 10
+        memory = 100
+      }
+
       template {
         destination = "secrets/alertmanager.yml"
         data = <<-EOF

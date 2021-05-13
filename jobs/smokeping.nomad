@@ -53,7 +53,7 @@ job "smokeping" {
       }
 
       resources {
-        cpu    = 100
+        cpu    = 10
         memory = 256
       }
 

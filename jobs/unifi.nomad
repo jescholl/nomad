@@ -48,7 +48,7 @@ job "unifi" {
         }
       }
       resources {
-        cpu    = 500
+        cpu    = 200
         memory = 1024
       }
       service {

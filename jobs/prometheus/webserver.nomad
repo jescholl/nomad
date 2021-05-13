@@ -50,8 +50,8 @@ job "webserver" {
       }
 
       resources {
-        cpu = 100
-        memory = 100
+        cpu = 10
+        memory = 10
       }
 
       service {

@@ -38,8 +38,8 @@ job "netboot" {
         ]
       }
       resources {
-        cpu    = 50
-        memory = 20
+        cpu    = 5
+        memory = 10
       }
     }
   }
