@@ -1,6 +1,7 @@
 job "traefik" {
   datacenters = ["dc1"]
   type        = "service"
+  priority = 60
 
   update {
     max_parallel = 1
