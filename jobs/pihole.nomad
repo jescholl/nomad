@@ -8,6 +8,7 @@ job "pihole" {
     canary           = 1
     auto_revert      = true
     auto_promote     = true
+    min_healthy_time = "1m"
   }
 
   vault {
@@ -33,7 +34,7 @@ job "pihole" {
 
       resources {
         cpu = 10
-        memory = 10
+        memory = 20
       }
 
       env {
@@ -97,7 +98,7 @@ job "pihole" {
 
       resources {
         cpu = 10
-        memory = 10
+        memory = 100
       }
     }
 
@@ -188,13 +189,13 @@ job "pihole" {
 
       template {
         destination = "local/etc-dnsmasq.d/00-custom.conf"
-        data = <<EOF
-host-record=switch.home.nosuchserver.net,192.168.10.3
-{{ range nodes }}
-host-record={{ .Node }}.home.nosuchserver.net,{{ .Address }}{{ end }}
-address=/nosuchserver.net/192.168.10.6
-server=/consul/192.168.10.5#8600
-EOF
+        data = <<-EOF
+          host-record=switch.home.nosuchserver.net,192.168.10.3
+          {{ range nodes }}
+          host-record={{ .Node }}.home.nosuchserver.net,{{ .Address }}{{ end }}
+          address=/nosuchserver.net/192.168.10.6
+          server=/consul/192.168.10.5#8600
+          EOF
       }
     }
   }
