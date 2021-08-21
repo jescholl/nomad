@@ -24,7 +24,7 @@ job "octoprint" {
       }
 
       config {
-        image = "octoprint/octoprint:1.5.3"
+        image = "octoprint/octoprint:1.6.1"
 
         devices = [
           {
