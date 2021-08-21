@@ -233,7 +233,7 @@ EOF
     [entryPoints.http_external]
         address = ":{# env "NOMAD_PORT_http_external" #}"
         [entryPoints.http_external.http.redirections.entryPoint]
-            to = "external"
+            to = "internal"
 
     # redirect http->https on internal
     [entryPoints.http_internal]
