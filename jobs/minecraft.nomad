@@ -2,7 +2,7 @@ locals {
   level = "world" #default = "world"
   mods = [
     #"https://media.forgecdn.net/files/3276/18/inventorypets-1.16.5-2.0.14.jar"
-    "https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v2.4.0/minecraft-prometheus-exporter-2.4.0.jar"
+    #"https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v2.4.0/minecraft-prometheus-exporter-2.4.0.jar"
   ]
 
   mods_split_urls = [ for mod_url in local.mods: split("/", mod_url) ]
@@ -37,7 +37,8 @@ job "minecraft" {
         EULA = "true"
         MEMORY = "4G"
         WHITELIST = "CheesierCoast81,freedelahoya81,CloneID653,LittleClone"
-        OPS = "CheesierCoast81,freedelahoya81,CloneID653,LittleClone"
+        OVERRIDE_WHITELIST = "true"
+        #OPS = "CheesierCoast81,freedelahoya81,CloneID653,LittleClone"
         ALLOW_FLIGHT = "true"
         TZ = "America/Los_Angeles"
         ENABLE_JMX = "true"
@@ -45,7 +46,7 @@ job "minecraft" {
         OVERRIDE_SERVER_PROPERTIES = "true"
 
         # MODS
-        #REMOVE_OLD_MODS="true"
+        REMOVE_OLD_MODS = "true"
         LEVEL = local.level
         MOTD = local.motd
         #MOTD = "Forge-modded server - Mod list: inventory-pets"
@@ -60,7 +61,7 @@ job "minecraft" {
       }
 
       config {
-        image = "itzg/minecraft-server:latest"
+        image = "itzg/minecraft-server:2021.15.0-java16-openj9"
 
         #mount {
         #  target = "/data"
