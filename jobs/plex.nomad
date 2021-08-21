@@ -23,7 +23,7 @@ job "plex" {
 
       resources {
         cpu    = 10
-        memory = 10
+        memory = 20
       }
 
       template {
