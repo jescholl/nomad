@@ -45,7 +45,7 @@ job "traefik" {
           "traefik.http.routers.error-pages-external-method-filter.service=error-pages@consulcatalog",
 
           # setup middleware for other services to use
-          "traefik.http.middlewares.error-pages-middleware.errors.status=400-599",
+          "traefik.http.middlewares.error-pages-middleware.errors.status=500-599",
           "traefik.http.middlewares.error-pages-middleware.errors.service=error-pages@consulcatalog",
           "traefik.http.middlewares.error-pages-middleware.errors.query=/{status}.html",
         ]
