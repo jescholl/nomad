@@ -170,12 +170,12 @@ job "traefik" {
       template {
         destination = "local/traefik.env"
         env = true
-        data = <<EOF
-{{ with secret "secret/app/traefik/namecheap" }}
-NAMECHEAP_API_USER={{ .Data.username }}
-NAMECHEAP_API_KEY={{ .Data.api_key }}
-{{ end }}
-EOF
+        data = <<-EOF
+          {{ with secret "secret/app/traefik/namecheap" }}
+          NAMECHEAP_API_USER={{ .Data.username }}
+          NAMECHEAP_API_KEY={{ .Data.api_key }}
+          {{ end }}
+          EOF
       }
 
       template {
@@ -183,146 +183,14 @@ EOF
         change_mode = "noop"
         left_delimiter = "{#"
         right_delimiter = "#}"
-        data = <<EOF
-# Dynamic Configuration
-
-# Whitelist assigned to "internal" endpoint
-[http.middlewares.internal-whitelist.ipWhiteList]
-    sourceRange = ["192.168.10.0/24", "172.16.0.0/12"]
-
-# Manually add services that are difficult to add dynamically
-[http.routers.consul]
-    rule = "Host(`consul.nosuchserver.net`)"
-    service = "consul@file"
-    entryPoints = ["internal"]
-
-[http.routers.nomad]
-    rule = "Host(`nomad.nosuchserver.net`)"
-    service = "nomad@file"
-    entryPoints = ["internal"]
-
-[http.services]
-    [http.services.nomad.loadBalancer]
-        {# range service "http.nomad" #}
-        [[http.services.nomad.loadBalancer.servers]]
-            url = "http://{# .Address #}:{# .Port #}"
-        {# end #}
-
-    [http.services.consul.loadBalancer]
-        [[http.services.consul.loadBalancer.servers]]
-            url = "http://127.0.0.1:8500"
-EOF
+        data = file("dynamic.toml.ctpl")
       }
 
       template {
         destination = "local/traefik.toml"
         left_delimiter = "{#"
         right_delimiter = "#}"
-        data = <<EOF
-{# with secret "secret/app/traefik/traefik" #}
-[metrics]
-    [metrics.prometheus]
-        entryPoint = "prometheus"
-
-
-[entryPoints]
-    [entryPoints.prometheus]
-        address = ":{# env "NOMAD_PORT_prometheus" #}"
-
-    # redirect http->https on external
-    [entryPoints.http_external]
-        address = ":{# env "NOMAD_PORT_http_external" #}"
-        [entryPoints.http_external.http.redirections.entryPoint]
-            to = "internal"
-
-    # redirect http->https on internal
-    [entryPoints.http_internal]
-        address = ":{# env "NOMAD_PORT_http_internal" #}"
-        [entryPoints.http_internal.http]
-            middlewares = ["internal-whitelist@file"]
-            [entryPoints.http_internal.http.redirections.entryPoint]
-                to = "internal"
-
-    [entryPoints.external]
-        address = ":{# env "NOMAD_PORT_external" #}"
-        [entryPoints.external.http]
-            middlewares = ["error-pages-middleware@consulcatalog"]
-        [entryPoints.external.http.tls]
-            certResolver = "nosuchserver"
-            [[entryPoints.external.http.tls.domains]]
-                main = "nosuchserver.net"
-                sans = ["*.nosuchserver.net"]
-
-    [entryPoints.internal]
-        address = ":{# env "NOMAD_PORT_internal" #}"
-        [entryPoints.internal.http]
-            middlewares = ["internal-whitelist@file", "error-pages-middleware@consulcatalog"]
-            [entryPoints.internal.http.tls]
-                certResolver = "nosuchserver"
-                [[entryPoints.internal.http.tls.domains]]
-                    main = "nosuchserver.net"
-                    sans = ["*.nosuchserver.net"]
-
-    [entryPoints.unifi_stun]
-        address = ":{# env "NOMAD_PORT_unifi_stun" #}/udp"
-
-    [entryPoints.unifi_cmdctrl]
-        address = ":{# env "NOMAD_PORT_unifi_cmdctrl" #}"
-
-    [entryPoints.dns_tcp]
-        address = ":{# env "NOMAD_PORT_dns" #}/tcp"
-
-    [entryPoints.dns_udp]
-        address = ":{# env "NOMAD_PORT_dns" #}/udp"
-
-    [entryPoints.plex]
-        address = ":{# env "NOMAD_PORT_plex" #}/tcp"
-
-    [entryPoints.minecraft]
-        address = ":{# env "NOMAD_PORT_minecraft" #}/tcp"
-    [entryPoints.minecraft_rcon]
-        address = ":{# env "NOMAD_PORT_minecraft_rcon" #}/tcp"
-
-
-
-[certificatesResolvers.nosuchserver.acme]
-    #caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
-    email    = "jason.e.scholl@gmail.com"
-    storage  = "/etc/traefik/acme/acme.json"
-    [certificatesResolvers.nosuchserver.acme.dnsChallenge]
-        provider = "namecheap"
-        resolvers = ["8.8.8.8:53", "1.1.1.1:53", "9.9.9.9:53"]
-
-[serversTransport]
-  rootCAs = ["/vault_ca.crt"]
-
-[api]
-    dashboard = true
-
-[providers]
-    # Enable the file provider to define routers / middlewares / services in file
-    [providers.file]
-        directory = "/etc/traefik/dynamic"
-
-    # Enable Consul Catalog configuration backend.
-    [providers.consulCatalog]
-        exposedByDefault = false
-        prefix           = "traefik"
-        defaultRule      = "Host(`{{ .Name }}.nosuchserver.net`)"
-
-        [providers.consulCatalog.endpoint]
-            address = "127.0.0.1:8500"
-            scheme  = "http"
-
-            #[tls.options]
-            #    [tls.options.default]
-            #        sniStrict = true
-
-[log]
-    level = "INFO"
-{# end #}
-EOF
-
+        data = file("static.toml.ctpl")
       }
     }
   }

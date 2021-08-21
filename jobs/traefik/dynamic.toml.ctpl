@@ -1,0 +1,27 @@
+# Dynamic Configuration
+
+# Whitelist assigned to "internal" endpoint
+[http.middlewares.internal-whitelist.ipWhiteList]
+    sourceRange = ["192.168.10.0/24", "172.16.0.0/12"]
+
+# Manually add services that are difficult to add dynamically
+[http.routers.consul]
+    rule = "Host(`consul.nosuchserver.net`)"
+    service = "consul@file"
+    entryPoints = ["internal"]
+
+[http.routers.nomad]
+    rule = "Host(`nomad.nosuchserver.net`)"
+    service = "nomad@file"
+    entryPoints = ["internal"]
+
+[http.services]
+    [http.services.nomad.loadBalancer]
+        {# range service "http.nomad" #}
+        [[http.services.nomad.loadBalancer.servers]]
+            url = "http://{# .Address #}:{# .Port #}"
+        {# end #}
+
+    [http.services.consul.loadBalancer]
+        [[http.services.consul.loadBalancer.servers]]
+            url = "http://127.0.0.1:8500"
