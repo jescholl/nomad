@@ -85,7 +85,7 @@ job "minecraft" {
       }
 
       resources {
-        memory = 4608
+        memory = 4096 * 1.25
         cpu = 7000
       }
 
